@@ -6,7 +6,7 @@ body {
     flex-direction: column;
     justify-content: space-between;
     height: 100vh;
-    background: linear-gradient(to bottom, #01080E, #041832);
+    background: linear-gradient(to bottom, #A16207, #1E1B16);
     color: #FFFFFF;
     font-family: 'Inter', sans-serif;
 }
@@ -78,7 +78,7 @@ body {
 }
 
 .chat__bolha--bot {
-    background-color: #4A42B8;
+    background-color: #4C1D95;
 }
 
 .chat__bolha--bot::after {
