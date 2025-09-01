@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import os
 from time import sleep
 from helper import carrega,salva
+from selecionar_persona import personas
 
 load_dotenv()
 
@@ -22,6 +23,8 @@ def bot(prompt):
 
     while True:
         try:
+            personalidade = personas["negativo"]
+
             prompt_do_sistema = f"""
             #PERSONA
             Você é um chatbot de atendimento a clientes de um e-commerce. 
@@ -31,6 +34,9 @@ def bot(prompt):
 
             #CONTEXTO
             {contexto}
+            
+            # PERSONALIDADE
+            {personalidade}
             """
 
             configuracao_modelo = {
