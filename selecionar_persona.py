@@ -51,20 +51,11 @@ def selecionar_persona(mensagem_usuario):
     se a mensagem for: "Estou muito chateado com o atendimento que recebi. 😔"
     Saída: negativo
     """
-configuracao_modelo = {
-    temperature" : 0.1,
-    max_output_tokens" : 8192
-}
+  configuracao_modelo = {
+      "temperature" : 0.1,
+      "max_output_tokens" : 8192
+  }
 
-  llm = genai.GenerativeModel(
-    model_name=MODELO_ESCOLHIDO,
-    system_instruction=prompt_do_sistema,
-    generation_config=configuracao_modelo
-  )
-
-  resposta = llm.generate_content(mensagem_usuario)
-
-  return resposta.text.strip().lower()
   llm = genai.GenerativeModel(
     model_name=MODELO_ESCOLHIDO,
     system_instruction=prompt_do_sistema,

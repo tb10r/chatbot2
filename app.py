@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import os
 from time import sleep
 from helper import carrega,salva
-from selecionar_persona import personas
+from selecionar_persona import personas, selecionar_persona
 
 load_dotenv()
 
@@ -17,38 +17,48 @@ app.secret_key = 'alura'
 
 contexto = carrega("dados/StudyBox.txt")
 
+def criar_chatbot():
+    personalidade = "neutro"
+
+    prompt_do_sistema = f"""
+    #PERSONA
+    Você é um chatbot de atendimento a clientes de um e-commerce. 
+    Você não deve responder perguntas que não sejam dados do ecommerce informado!
+
+    Você deve utilizar apenas dados que estejam dentro do 'contexto'
+
+    #CONTEXTO
+    {contexto}
+            
+    # PERSONALIDADE
+    {personalidade}
+    """
+
+    configuracao_modelo = {
+        "temperature" : 0.1,
+        "max_output_tokens" : 8192
+    }
+
+    llm = genai.GenerativeModel(
+        model_name=MODELO_ESCOLHIDO,
+        system_instruction=prompt_do_sistema,
+        generation_config=configuracao_modelo
+    )
+
+    chatbot = llm.start_chat(history=[])
+
+    return chatbot
+
+chatbot = criar_chatbot()
+
+
 def bot(prompt):
     maximo_tentativas = 1
     repeticao = 0
 
     while True:
         try:
-            personalidade = personas["negativo"]
-
-            prompt_do_sistema = f"""
-            #PERSONA
-            Você é um chatbot de atendimento a clientes de um e-commerce. 
-            Você não deve responder perguntas que não sejam dados do ecommerce informado!
-
-            Você deve utilizar apenas dados que estejam dentro do 'contexto'
-
-            #CONTEXTO
-            {contexto}
-            
-            # PERSONALIDADE
-            {personalidade}
-            """
-
-            configuracao_modelo = {
-                "temperature" : 0.1,
-                "max_output_tokens" : 8192
-            }
-
-            llm = genai.GenerativeModel(
-                model_name=MODELO_ESCOLHIDO,
-                system_instruction=prompt_do_sistema,
-                generation_config=configuracao_modelo
-            )
+            personalidade = personas[selecionar_persona(prompt)]
 
             resposta = llm.generate_content(prompt)
             return resposta.text
