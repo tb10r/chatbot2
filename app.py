@@ -5,11 +5,13 @@ import os
 from time import sleep
 from helper import carrega,salva
 from selecionar_persona import personas, selecionar_persona
+import uuid
+from gerenciar_imagem import gerar_imagem_gemini
 
 load_dotenv()
 
 CHAVE_API_GOOGLE = os.getenv("GEMINI_API_KEY")
-MODELO_ESCOLHIDO = "gemini-2.5-flash"   
+MODELO_ESCOLHIDO = "gemini-1.5-flash"   
 genai.configure(api_key=CHAVE_API_GOOGLE)
 
 app = Flask(__name__)
@@ -17,11 +19,15 @@ app.secret_key = 'alura'
 
 contexto = carrega("dados/StudyBox.txt")
 
+caminho_imagem_enviada = None
+UPLOAD_FOLDER = "imagens_temporarias"
+
 def criar_chatbot():
     personalidade = "neutro"
 
     prompt_do_sistema = f"""
-    #PERSONA
+    # PERSONA
+
     Você é um chatbot de atendimento a clientes de um e-commerce. 
     Você não deve responder perguntas que não sejam dados do ecommerce informado!
 
@@ -32,6 +38,10 @@ def criar_chatbot():
             
     # PERSONALIDADE
     {personalidade}
+
+    # Histórico
+    Acesse sempre o histórico de mensagens, e recupere informações ditas anteriormente.
+
     """
 
     configuracao_modelo = {
@@ -51,23 +61,58 @@ def criar_chatbot():
 
 chatbot = criar_chatbot()
 
-
 def bot(prompt):
     maximo_tentativas = 1
     repeticao = 0
+    global caminho_imagem_enviada
 
     while True:
         try:
             personalidade = personas[selecionar_persona(prompt)]
+            mensagem_usuario = f"""
+            Considere esta personalidade para responder a mensagem:
+            {personalidade}
+            
+            Responda a seguinte mensagem, sempre lembrando do histórico:
+            {prompt}
+            """
 
-            resposta = llm.generate_content(prompt)
+            if caminho_imagem_enviada:
+                mensagem_usuario += "\n Utilize as características da imagem em sua resposta"
+                arquivo_imagem = gerar_imagem_gemini(caminho_imagem_enviada)
+                resposta = chatbot.send_message([arquivo_imagem, mensagem_usuario])
+                caminho_imagem_enviada = None
+            else:
+                resposta = chatbot.send_message(mensagem_usuario)
+
+
+            resposta = chatbot.send_message(mensagem_usuario)
+
+            print(f"Quantidade: {len(chatbot.history)}\n{chatbot.history}")
+            
             return resposta.text
         except Exception as erro:
             repeticao += 1
             if repeticao >= maximo_tentativas:
                 return "Erro no Gemini: %s" % erro
             
+            if caminho_imagem_enviada:
+                os.remove(caminho_imagem_enviada)
+                caminho_imagem_enviada = None
             sleep(50)
+
+@app.route("/upload_imagem", methods=["POST"])
+def upload_imagem():
+    global caminho_imagem_enviada
+
+    if caminho_imagem_enviada:
+        mensagem_usuario += "\n Utilize as caracteristicas da imagem em sua resposta"
+        arquivo_imagem = gerar_imagem_gemini(caminho_imagem_enviada)
+        resposta = chatbot.send_message([arquivo_imagem, mensagem_usuario])
+        os.remove(caminho_imagem_enviada)
+        caminho_imagem_enviada = None
+    else:
+        resposta = chatbot.send_message(mensagem_usuario)
 
 @app.route("/chat", methods=["POST"])
 def chat():
