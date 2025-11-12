@@ -80,6 +80,7 @@ async function enviarMensagem() {
     novaBolhaBot.innerHTML = textoDaResposta.replace(/\n/g, '<br>');
     vaiParaFinalDoChat();
 }
+clearInterval(intervalo_Animacao)
 
 function criaBolhaUsuario() {
     let bolha = document.createElement('p');
