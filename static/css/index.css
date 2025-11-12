@@ -1,4 +1,4 @@
-+@import url(_reset.css);
+@import url(_reset.css);
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
 
 body {
@@ -6,8 +6,8 @@ body {
     flex-direction: column;
     justify-content: space-between;
     height: 100vh;
-    background: linear-gradient(to bottom, #A16207, #1E1B16);
-    color: #FFFFFF;
+    background: linear-gradient(to bottom, #1E1E2E, #1E1E2E);
+    color: #C9D1D9;
     font-family: 'Inter', sans-serif;
 }
 
@@ -78,7 +78,7 @@ body {
 }
 
 .chat__bolha--bot {
-    background-color: #4C1D95;
+    background-color: #2E2E3E;
 }
 
 .chat__bolha--bot::after {
@@ -98,7 +98,7 @@ body {
 }
 
 .chat__bolha--usuario {
-    border: 1px solid #7B71FF;
+    border: 1px solid #2E2E3E;
     align-self: flex-end;
 }
 
